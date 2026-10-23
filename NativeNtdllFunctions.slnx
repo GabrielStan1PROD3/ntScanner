@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="ProcessThreadScanner/ProcessThreadScanner.vcxproj" Id="c017cb18-7c61-4b38-9ad7-f05d26d9b4d5" />
+</Solution>
