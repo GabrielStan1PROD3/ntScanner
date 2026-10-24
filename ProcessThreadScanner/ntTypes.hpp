@@ -7,7 +7,6 @@ using KPRIORITY = LONG;
 
 
 
-
 struct BasicProcessInfo
 {
     const wchar_t* procName;

@@ -6,6 +6,7 @@
 using process_structure = SYSTEM_PROCESS_INFORMATION;
 /*
    still in tests 
+   it will be modified in one text_parser, 
 */
 class Scanner
 {
@@ -58,7 +59,7 @@ Scanner& Scanner::basic_info()
         std::printf("=====================================================================================================================\n");
         std::printf("\n");
 
-        for (int i{ 0 };i < info.thn;++i)
+        for (unsigned i{ 0 };i < info.thn;++i)
         {
             unsigned long long userTime    = thread_array[i].UserTime  .QuadPart / 10'000;
             unsigned long long kernelTime  = thread_array[i].KernelTime.QuadPart / 10'000;
@@ -97,7 +98,7 @@ Scanner& Scanner::find_basic(bool(*predicate)(BasicProcessInfo info))
             std::printf("==========================================================================================================================\n");
             std::printf("\n");
             SYSTEM_THREAD_INFORMATION* thread_array = reinterpret_cast<SYSTEM_THREAD_INFORMATION*>(proc->Threads);
-            for (int i {} ; i < proc->NumberOfThreads ;++i)
+            for (unsigned i {} ; i < proc->NumberOfThreads ;++i)
             {
                 unsigned long long userTime    = thread_array[i].UserTime.QuadPart   / 10'000;
                 unsigned long long kernelTime  = thread_array[i].KernelTime.QuadPart / 10'000;
