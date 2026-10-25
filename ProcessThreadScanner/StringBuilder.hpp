@@ -13,31 +13,32 @@ constexpr size_t initial_heap     = initial_capacity << 2;
 
 class string_builder
 {
-    size_t _stackCursor    { 0 }; //# 1
-    size_t _heapCursor     { 0 }; //# 2
-    size_t _heapCapacity   { 0 };
+    size_t _stackCursor { 0 };                         //# 1
+    size_t _heapCursor  { 0 };                         //# 2
+    size_t _heapCapacity{ 0 };
     size_t _stackCapacity{ initial_capacity };
-    
-    wchar_t  _stackBuffer [initial_capacity];
+
+    wchar_t  _stackBuffer[initial_capacity]{};
     wchar_t* _heapBuffer    { nullptr };
    
     bool isStackMovedToHeap { false };
     bool isHeapAllocated    { false };
     
-    bool verify_stack(size_t stringSize);          //# 3
-    bool reset_cursor() noexcept;                  //# 4                                                        
+    bool verify_stack(size_t stringSize);                 //# 3
+    bool reset_cursor() noexcept;                         //# 4                                                        
    
-    bool move_cursor (size_t index) noexcept;  //# 5  
-    bool use_heap(size_t stringSize);          //# 6
+    bool move_cursor (size_t index) noexcept;             //# 5  
+    bool use_heap(size_t stringSize);                     //# 6
 public:
     string_builder() = default;
    ~string_builder();
-   const wchar_t* flush() noexcept;     //# 8
-   void append(bool newLine, const wchar_t* format, ...); // #9
-
-    string_builder(const string_builder& other) = delete;
-    string_builder& operator=(const string_builder& other) = delete;
-    string_builder(string_builder&& other) = delete;
+   const wchar_t* flush() noexcept;                        //# 7
+   const size_t getSize()noexcept;
+   void append(bool newLine, const wchar_t* format, ...); // #8
+    
+    string_builder(const string_builder& other)                 = delete;
+    string_builder(string_builder&& other)                      = delete;
+    string_builder& operator=(const string_builder& other)      = delete; 
     string_builder& operator= (string_builder&& other) noexcept = delete;
 
 
@@ -111,7 +112,9 @@ inline bool string_builder::move_cursor(std::size_t index) noexcept
 inline bool string_builder::use_heap(size_t size)
 {
     const size_t max_elements = SIZE_MAX / sizeof(wchar_t);
+    
     const size_t used = isHeapAllocated ? _heapCursor : _stackCursor;
+
     if (used >= max_elements || size > max_elements - used - 1) return false;
 
     const  size_t requiredCapacity = used + size + 1;
@@ -150,11 +153,11 @@ inline bool string_builder::use_heap(size_t size)
     if (isHeapAllocated)
         ::VirtualFree(_heapBuffer, 0, MEM_RELEASE);
 
-    _heapBuffer = newBuffer;
-    _heapCapacity = newCapacity;
-    _heapCursor = used;
-    _stackCursor = 0;
-    isHeapAllocated = true;
+    _heapBuffer        = newBuffer;
+    _heapCapacity      = newCapacity;
+    _heapCursor        = used;
+    _stackCursor       = 0;
+    isHeapAllocated    = true;
     isStackMovedToHeap = true;
 
     return true;
@@ -165,9 +168,9 @@ inline string_builder::~string_builder()
     if (isHeapAllocated && _heapBuffer != nullptr) 
     {
         ::VirtualFree(_heapBuffer, 0, MEM_RELEASE);
-        _heapBuffer = nullptr;
+        _heapBuffer     = nullptr;
         _heapCursor     = 0;
-        _heapCapacity = 0;
+        _heapCapacity   = 0;
     }
 }
 
@@ -176,11 +179,16 @@ inline const wchar_t* string_builder::flush() noexcept
 {
     wchar_t*     data = isHeapAllocated ? _heapBuffer : _stackBuffer;
     const size_t used = isHeapAllocated ? _heapCursor : _stackCursor;
-    data[used] = L'\0';
-    _stackCursor = 0;
-    _heapCursor  = 0;
+    data[used]        = L'\0';
+    _stackCursor      = 0;
+    _heapCursor        = 0;
 
    return data;
+}
+
+inline const size_t string_builder::getSize() noexcept
+{
+   return isHeapAllocated ? _heapCursor : _stackCursor;
 }
 
 
@@ -231,7 +239,9 @@ inline void string_builder::append( bool newLine,const wchar_t* format, ...)
     if (written != length) return;
 
     size_t& used = onStack ? _stackCursor : _heapCursor;
+  
     used += textSize;
+    
     if (newLine)
     {
         destination[textSize] = L'\n';

@@ -20,6 +20,7 @@ public:
      Scanner() = default;
     ~Scanner() = default;
     const wchar_t* dump() { return builder.flush(); };
+    const size_t dumpSize();
     Scanner& basic_info();
     Scanner& find_basic(bool (*predicate)(BasicProcessInfo info));
 };
@@ -40,6 +41,11 @@ const wchar_t* Scanner::stateEnumParser(ULONG stateEnumValue)
      case 9:  return L"WaitingForProcessInSwap";
     default:  return L"Unknown";
     };
+}
+
+inline const size_t Scanner::dumpSize()
+{
+    return builder.getSize();
 }
 
 Scanner& Scanner::basic_info()
@@ -66,7 +72,7 @@ Scanner& Scanner::basic_info()
             unsigned long long userTime    = thread_array[i].UserTime  .QuadPart / 10'000;
             unsigned long long kernelTime  = thread_array[i].KernelTime.QuadPart / 10'000;
             unsigned long long threadId    = (LONGLONG)thread_array[i] .ClientId.UniqueThread;
-            const  wchar_t*       threadState = stateEnumParser(thread_array[i].ThreadState);
+            const  wchar_t*    threadState = stateEnumParser(thread_array[i].ThreadState);
 
             builder.append(true,L"\t ---> |TNO : %-10llu |TID : %10llu |UTIME : %10llums |KTIME : %10llums |THSTATE: %10s ",
                 i + 1, threadId, userTime, kernelTime, threadState);
@@ -84,7 +90,7 @@ Scanner& Scanner::find_basic(bool(*predicate)(BasicProcessInfo info))
     for (auto proc = _bufferProcesses.first(); proc != nullptr;proc = ::dll_vector<process_structure>::next(proc))
     {
 
-        info.pid = static_cast<ULONG>(reinterpret_cast<ULONG_PTR>(proc->UniqueProcessId));
+        info.pid      = static_cast<ULONG>(reinterpret_cast<ULONG_PTR>(proc->UniqueProcessId));
         info.procName = proc->ImageName.Buffer ? proc->ImageName.Buffer : L"System Idle Process";
         info.ppc      = proc->PrivatePageCount  >> 10; // size in kb
         info.ws       = proc->WorkingSetSize    >> 10;     //size in kb
@@ -105,9 +111,9 @@ Scanner& Scanner::find_basic(bool(*predicate)(BasicProcessInfo info))
                 unsigned long long userTime    = thread_array[i].UserTime.QuadPart   / 10'000;
                 unsigned long long kernelTime  = thread_array[i].KernelTime.QuadPart / 10'000;
                 unsigned long long threadId    = (LONGLONG)thread_array[i].ClientId.UniqueThread;
-                const wchar_t*        threadState = stateEnumParser(thread_array[i].ThreadState);
+                const wchar_t*     threadState = stateEnumParser(thread_array[i].ThreadState);
 
-                builder.append(true,L"\t ---> |TNO : %-10llu |TID : %10llu |UTIME : %10llu |KTIME : %10llu |THSTATE: %10s \n",
+                builder.append(true,L"\t ---> |TNO : %-10llu |TID : %10llu |UTIME : %10llums |KTIME : %10llums |THSTATE: %10s \n",
                     i + 1, threadId, userTime, kernelTime, threadState);
 
                
