@@ -7,7 +7,7 @@ using process_structure = SYSTEM_PROCESS_INFORMATION;
 template<typename T>
 class dll_vector;
 
-
+// specialisations of dll_vector
 template<>
 class dll_vector<SYSTEM_PROCESS_INFORMATION>
 {
