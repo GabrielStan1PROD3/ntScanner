@@ -4,7 +4,9 @@
 #include <cstdio>
 #include <cstdarg>
 
-
+/*
+  needs to be cleaned up 
+*/
 
 constexpr size_t initial_capacity = 64 << 4;
 constexpr size_t initial_heap     = initial_capacity << 2; 
@@ -18,6 +20,7 @@ class string_builder
     
     wchar_t  _stackBuffer [initial_capacity];
     wchar_t* _heapBuffer    { nullptr };
+   
     bool isStackMovedToHeap { false };
     bool isHeapAllocated    { false };
     
