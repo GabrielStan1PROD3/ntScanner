@@ -29,7 +29,6 @@ class string_builder
 public:
     string_builder() = default;
    ~string_builder();
-   const wchar_t* toString() noexcept;  //# 7
    const wchar_t* flush() noexcept;     //# 8
    void append(bool newLine, const wchar_t* format, ...); // #9
 
@@ -67,12 +66,8 @@ public:
 
     #7 Null-terminates and returns the stack-buffer contents.
 
-    #8 Null-terminates and returns the active buffer, then resets
-       both cursors while preserving the allocated memory.
-       The returned text must be consumed before the builder
-       is modified or destroyed.  
     
-    #9 Formats and appends text using variadic arguments.
+    #8 Formats and appends text using variadic arguments.
        Adds a newline when newLine is true.
        Switches to heap storage or grows it when needed.
        ...
@@ -173,12 +168,6 @@ inline string_builder::~string_builder()
     }
 }
 
-inline const wchar_t* string_builder::toString() noexcept
-{
-    _stackBuffer[_stackCursor] = L'\0';
-    std::printf("%zu", _stackCursor);
-    return _stackBuffer;
-}
 
 inline const wchar_t* string_builder::flush() noexcept
 {
@@ -187,6 +176,7 @@ inline const wchar_t* string_builder::flush() noexcept
     data[used] = L'\0';
     _stackCursor = 0;
     _heapCursor  = 0;
+
    return data;
 }
 
